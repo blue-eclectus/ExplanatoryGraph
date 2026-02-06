@@ -98,17 +98,9 @@ posteriors$H2  # Posterior distribution for H2
 
 ### Interactive App
 
-- **Step-by-step wizard** for model construction
-- **Network visualization** with multiple color modes (structure, baseline, posterior, change, log-ratio, research priority)
-- **Value of Information analysis** to prioritize research
-- **Sensitivity analysis** to test robustness
-
-### Analysis Capabilities
-
-- **Bayesian inference** using gRain's exact belief propagation
-- **EVPI computation** for research prioritization
-- **Parameter sweeps** to identify critical assumptions
-- **Export** results to CSV for further analysis
+- **Network visualization** with multiple color modes
+- **Step-by-step builder** for model construction
+- **Analysis tools** for explanatory account graphs, including Bayesian network inference
 
 ### Framework
 
@@ -137,7 +129,8 @@ ExplanatoryGraph/
 │   ├── conversion.R
 │   └── package_utils.R
 ├── tests/                # Test suite
-│   └── testthat/
+│   ├── testthat/
+│   └── *.R               # Unit and integration tests
 └── docs/                 # Documentation
     ├── primer.md
     ├── tutorial.md
@@ -147,25 +140,16 @@ ExplanatoryGraph/
 ## Testing
 
 ```r
-# Run testthat tests (from project root)
+# Run all test files (from project root)
+for (f in list.files("tests", pattern = "^test.*\\.R$", full.names = TRUE)) source(f)
+
+# Or run testthat tests only
 testthat::test_dir("tests/testthat")
 ```
-
-## Background
-
-This framework implements the **explanatory-eliminative approach** from History and Philosophy of Science, where hypotheses must *explain* evidence through intermediate phenomena and explicit auxiliary assumptions. See the [Primer](docs/primer.md) for conceptual details.
 
 ## License
 
 MIT License
-
-## Contributing
-
-Contributions welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Submit a pull request
 
 ## Links
 
