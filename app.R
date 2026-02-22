@@ -301,10 +301,20 @@ server <- function(input, output, session) {
       rv$bayesian_network <- build_bayesian_network(rv$model)
       rv$selector <- Selector$new(rv$model)
 
-      # Clear VOI cache when model/network changes
+      # Clear model-dependent runtime state (preserve user preferences)
+      rv$posteriors <- NULL
+      rv$additional_conditions <- list()
+      rv$saved_inferences <- list()
+      rv$selected_account_id <- NULL
       rv$evpi_cache <- list()
       rv$evpi_results <- NULL
       rv$evpi_cache_key <- NULL
+      rv$evpi_selected_node <- NULL
+      rv$evpi_computing <- FALSE
+      rv$sensitivity_params <- NULL
+      rv$sensitivity_selected <- NULL
+      rv$sensitivity_result <- NULL
+      rv$sensitivity_computing <- FALSE
 
       # Generate all CPTs using helper function
       cpts <- generate_all_cpts_for_model(rv$model, rv$bayesian_network, rv$selector)
@@ -417,6 +427,21 @@ server <- function(input, output, session) {
       }
     } else if (pending == "build_network") {
       build_network_for_analysis(switch_to_analysis = TRUE)
+    } else if (pending == "import_model") {
+      req(input$import_model)
+      tryCatch({
+        json_str <- paste(readLines(input$import_model$datapath, warn = FALSE), collapse = "\n")
+        imported_model <- ExplanatoryModel$from_json(json_str)
+        rv$model <- imported_model
+        if (build_network_for_analysis(switch_to_analysis = FALSE)) {
+          updateTabItems(session, "sidebar_menu", "viz")
+          showNotification(paste("Model loaded:", imported_model$name), type = "message")
+        } else {
+          showNotification("Model loaded but network build failed.", type = "warning")
+        }
+      }, error = function(e) {
+        showNotification(paste("Failed to import model:", e$message), type = "error")
+      })
     }
   })
 
@@ -477,6 +502,10 @@ server <- function(input, output, session) {
 
   observeEvent(input$import_model, {
     req(input$import_model)
+
+    if (show_invalidation_warning("import a model", "import_model")) {
+      return()
+    }
 
     tryCatch({
       json_str <- paste(readLines(input$import_model$datapath, warn = FALSE), collapse = "\n")
