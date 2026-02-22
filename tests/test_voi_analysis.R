@@ -19,54 +19,8 @@ source("R/conversion.R")
 source("R/bayesian.R")
 source("R/voi_analysis.R")
 
-# Helper: Generate all CPTs for a model (mirrors app.R function)
-# This handles Selector, Account, and all spec nodes
-generate_all_cpts_for_model <- function(model, bayesian_network, selector) {
-  cpts <- list()
-
-  # Selector CPT
-  cpts[["Selector"]] <- generate_selector_cpt(selector)
-
-  # Account CPTs
-  for (acc_id in names(model$accounts)) {
-    cpts[[acc_id]] <- generate_account_cpt(acc_id, selector)
-  }
-
-  # Auxiliary CPTs
-  for (aux_id in names(model$auxiliaries)) {
-    cpts[[aux_id]] <- generate_prior_cpt_spec(model$auxiliaries[[aux_id]])
-  }
-
-  # Phenomenon CPTs
-  for (pc_id in names(model$phenomena)) {
-    cpts[[pc_id]] <- generate_target_cpt_spec(model$phenomena[[pc_id]], bayesian_network)
-  }
-
-  # Result CPTs
-  for (r_id in names(model$results)) {
-    # Check if result has incoming TO_TARGET edge
-    has_incoming <- any(bayesian_network$edges$to == r_id &
-                       bayesian_network$edges$type == "TO_TARGET")
-
-    if (has_incoming) {
-      cpts[[r_id]] <- generate_target_cpt_spec(model$results[[r_id]], bayesian_network)
-    } else {
-      cpts[[r_id]] <- list(
-        states = c("true", "false"),
-        parents = character(0),
-        probabilities = c(model$results[[r_id]]$base_rate,
-                        1 - model$results[[r_id]]$base_rate)
-      )
-    }
-  }
-
-  # Explanatory Link CPTs
-  for (link_id in names(model$explanatory_links)) {
-    cpts[[link_id]] <- generate_link_cpt_spec(model$explanatory_links[[link_id]], bayesian_network)
-  }
-
-  return(cpts)
-}
+# Source helper functions (includes generate_all_cpts_for_model)
+source("R/app_helpers.R")
 
 # Test counters
 tests_run <- 0
