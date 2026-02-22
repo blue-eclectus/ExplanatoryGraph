@@ -279,8 +279,8 @@ mod_build_server <- function(id, rv, build_network_fn, show_invalidation_warning
 
     # Update button states
     observe({
-      shinyjs::toggleState(ns("prev_step"), rv$current_step > 1)
-      shinyjs::toggleState(ns("next_step"), rv$current_step < 4)
+      shinyjs::toggleState("prev_step", rv$current_step > 1)
+      shinyjs::toggleState("next_step", rv$current_step < 4)
     })
 
     # =========================================================================
@@ -465,13 +465,24 @@ mod_build_server <- function(id, rv, build_network_fn, show_invalidation_warning
     })
 
     # Account selection (dynamic observers)
-    # CRITICAL: once = TRUE prevents accumulation of handlers
+    # Track which account IDs already have observers to prevent accumulation
+    wired_account_ids <- reactiveVal(character(0))
+
     observe({
-      lapply(names(rv$model$accounts), function(acc_id) {
-        observeEvent(input[[paste0("select_acc_", acc_id)]], {
-          rv$selected_account_id <- acc_id
-        }, once = TRUE)
-      })
+      current_ids <- names(rv$model$accounts)
+      already_wired <- wired_account_ids()
+      new_ids <- setdiff(current_ids, already_wired)
+
+      for (acc_id in new_ids) {
+        local({
+          local_id <- acc_id
+          observeEvent(input[[paste0("select_acc_", local_id)]], {
+            rv$selected_account_id <- local_id
+          })
+        })
+      }
+
+      wired_account_ids(union(already_wired, new_ids))
     })
 
     # Account selected flag

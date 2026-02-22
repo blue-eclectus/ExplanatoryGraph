@@ -446,11 +446,11 @@ mod_sensitivity_server <- function(id, rv) {
       can_run <- !is.null(rv$sensitivity_selected) &&
                  !is.null(rv$bayesian_network) &&
                  !isTRUE(rv$sensitivity_computing)
-      shinyjs::toggleState(ns("sensitivity_run"), can_run)
+      shinyjs::toggleState("sensitivity_run", can_run)
 
       has_results <- !is.null(rv$sensitivity_result)
-      shinyjs::toggleState(ns("sensitivity_export_csv"), has_results)
-      shinyjs::toggleState(ns("sensitivity_export_png"), has_results)
+      shinyjs::toggleState("sensitivity_export_csv", has_results)
+      shinyjs::toggleState("sensitivity_export_png", has_results)
     })
 
     # CSV Export

@@ -282,11 +282,11 @@ mod_voi_server <- function(id, rv) {
                      !is.null(rv$model) &&
                      length(rv$model$accounts) > 0 &&
                      !isTRUE(rv$evpi_computing)
-      shinyjs::toggleState(ns("voi_compute"), can_compute)
+      shinyjs::toggleState("voi_compute", can_compute)
 
       # Disable export when no results
       has_results <- !is.null(rv$evpi_results)
-      shinyjs::toggleState(ns("voi_export_csv"), has_results)
+      shinyjs::toggleState("voi_export_csv", has_results)
     })
 
     # Current Uncertainty display
