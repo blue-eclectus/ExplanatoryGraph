@@ -1,6 +1,6 @@
 # ExplanatoryGraph
 
-A framework for constructing and analyzing explanatory accounts—structured representations of how hypotheses explain evidence with the help of intermediate claims and background assumptions. Enables assessment of competing hypotheses through their full explanatory pathways using Bayesian network inference. Includes an interactive Shiny application for model building, visualization, and analysis.
+ExplanatoryGraph offers a framework for representing the explanatory relationships linking hypotheses to empirical results. Hypotheses rarely explain empirical results in isolation---they usually require various intermediate claims and background assumptions. Recognizing the full explanatory structure can be crucial for reliably assessing hypotheses. The framework provided here enables Bayesian network inference on the full explanatory structure. Through an interactive Shiny app or R scripting, users can build their own explanatory graphs, run Bayesian inference, and visualize results.
 
 ![Network visualization showing explanatory pathways](images/network_visualization.png)
 
@@ -10,12 +10,16 @@ A framework for constructing and analyzing explanatory accounts—structured rep
 - **See it in action:** Explore the [COVID-19 Case Study](docs/covid19_case_study_overview.md)
 - **Ready to build a model?** See the [Tutorial](docs/tutorial.md)
 
-## Overview
+## Features
 
-The Explanatory Accounts Framework helps you:
-- **Build explanatory models of the full evidence base** with competing hypotheses and their auxiliary claims
+ExplanatoryGraphs can help you do the following:
+- **Build explanatory models of the full evidence base** with competing hypotheses
 - **Run Bayesian inference** to compute posterior probabilities over the full network
-- **Identify high-value research targets** by computing which uncertainties, if resolved, would most reduce uncertainty about the hypotheses
+- **Identify high-value research targets** by computing which uncertain claims, if resolved, would most reduce uncertainty about the hypotheses
+
+### Framework
+
+The project implements a formal framework based on contemporary philosophy of science for representing explanatory graphs with defined node types (hypotheses, accounts, phenomena, auxiliaries, results) and their relationships. See the [Primer](docs/primer.md) for conceptual details.
 
 ## Quick Start
 
@@ -85,56 +89,15 @@ model$add_result(BayesianResult$new(
 # (See R/explanatory_case_study.R for complete examples)
 
 # Build network and run inference
+source("R/app_helpers.R")
 graph <- build_bayesian_network(model)
-cpts <- generate_all_cpts_spec(graph)
+selector <- Selector$new(model)
+cpts <- generate_all_cpts_for_model(model, graph, selector)
 posteriors <- compute_posteriors(graph, cpts, list(R1 = "true"))
 
 # View results
 posteriors$H1  # Posterior distribution for H1
 posteriors$H2  # Posterior distribution for H2
-```
-
-## Features
-
-### Interactive App
-
-- **Network visualization** with multiple color modes
-- **Step-by-step builder** for model construction
-- **Analysis tools** for explanatory account graphs, including Bayesian network inference
-
-### Framework
-
-The project implements a formal framework based on contemporary philosophy of science for representing explanatory accounts with defined node types (hypotheses, accounts, phenomena, auxiliaries, results) and their relationships. See the [Primer](docs/primer.md) for conceptual details.
-
-## Project Structure
-
-```
-ExplanatoryGraph/
-├── app.R                 # Shiny application
-├── www/                  # Static files (CSS)
-│   └── custom.css
-├── R/                    # Source code
-│   ├── classes.R
-│   ├── bayesian.R
-│   ├── bayesian_spec_classes.R
-│   ├── bayesian_spec_cpt.R
-│   ├── bayesian_spec_inference.R
-│   ├── explanatory_classes.R
-│   ├── explanatory_network.R
-│   ├── explanatory_case_study.R
-│   ├── voi_analysis.R
-│   ├── sensitivity_analysis.R
-│   ├── probability_viz_helpers.R
-│   ├── cpt_utils.R
-│   ├── conversion.R
-│   └── package_utils.R
-├── tests/                # Test suite
-│   ├── testthat/
-│   └── *.R               # Unit and integration tests
-└── docs/                 # Documentation
-    ├── primer.md
-    ├── tutorial.md
-    └── covid19_case_study_overview.md
 ```
 
 ## Testing
