@@ -1,6 +1,6 @@
 # ExplanatoryGraph
 
-ExplanatoryGraph offers a framework for representing the explanatory relationships linking hypotheses to empirical results. Hypotheses rarely explain empirical results in isolation---they usually require various intermediate claims and background assumptions. Recognizing the full explanatory structure can be crucial for reliably assessing hypotheses. The framework provided here enables Bayesian network inference on the full explanatory structure. Through an interactive Shiny app or R scripting, users can build their own explanatory graphs, run Bayesian inference, and visualize results.
+ExplanatoryGraph offers a framework for representing the explanatory relationships linking hypotheses to empirical results. Hypotheses rarely explain empirical results in isolation—they usually require various intermediate claims and background assumptions. Recognizing the full explanatory structure can be crucial for accurately assessing empirical support for hypotheses. The framework provided here enables Bayesian network inference on the full explanatory structure. Through an interactive Shiny app or R scripting, users can build their own explanatory graphs, run Bayesian inference, and visualize results.
 
 ![Network visualization showing explanatory pathways](images/network_visualization.png)
 
@@ -13,13 +13,13 @@ ExplanatoryGraph offers a framework for representing the explanatory relationshi
 ## Features
 
 ExplanatoryGraphs can help you do the following:
-- **Build explanatory models of the full evidence base** with competing hypotheses
+- **Build explanatory graph models of the full evidence base** with competing hypotheses
 - **Run Bayesian inference** to compute posterior probabilities over the full network
 - **Identify high-value research targets** by computing which uncertain claims, if resolved, would most reduce uncertainty about the hypotheses
 
 ### Framework
 
-The project implements a formal framework based on contemporary philosophy of science for representing explanatory graphs with defined node types (hypotheses, accounts, phenomena, auxiliaries, results) and their relationships. See the [Primer](docs/primer.md) for conceptual details.
+The project implements a formal framework based on contemporary philosophy of science for representing explanatory graphs with defined node types (hypotheses, accounts, phenomena claims, auxiliaries, results) and their relationships. See the [Primer](docs/primer.md) for conceptual details.
 
 ## Quick Start
 
