@@ -1,20 +1,18 @@
-# Explanatory Accounts Framework: A Quick Primer
+# The ExplanatoryGraph Framework: A Primer
 
-This document provides a conceptual overview of the Explanatory Accounts Framework for newcomers. If you're ready to build a model, see the [Tutorial](tutorial.md).
+ExplanatoryGraph implements a framework based on the idea of **explanatory accounts**. This document explains the idea and how ExplanatoryGraph implements it. If you're ready to build a model, see the [Tutorial](tutorial.md). To explore an example, see the [COVID-19 Case Study](covid19_case_study_overview.md).
 
 ## What Problem Does This Solve?
 
-Scientists often need to combine diverse bodies of evidence to evaluate competing hypotheses. This is particularly challenging when evidence is complex and multimodal—produced by different methods, addressing different sub-questions, and sometimes yielding conflicting results.
+Scientists often need to integrate complex bodies of evidence to evaluate competing hypotheses. This is particularly challenging when evidence is indirect, produced by diverse methods, or includes seemingly conflicting results.
 
-Standard evidence amalgamation techniques struggle with this challenge:
+Standard evidence synthesis techniques struggle with this challenge:
 
 - **Meta-analysis** requires quantitative results from similar experimental designs, excluding qualitative evidence and indirect lines of reasoning
-- **Robustness analysis** tells us little when evidence doesn't neatly converge—as it rarely does in practice
-- **Bayesian approaches**, while flexible, are often highly sensitive to prior assumptions and provide little guidance on how to actually structure the inference
+- **Robustness analysis and methodological triangulation** tell us little when evidence doesn't neatly converge, as it rarely does in practice
+- **Bayesian approaches**, while flexible, often provide little guidance on how to actually structure the inference
 
-Part of the problem is that much relevant evidence is highly indirect. An empirical result may not directly address a hypothesis, but connect to it through chains of reasoning involving auxiliary assumptions and other findings. When methods treat the relationship between hypothesis and evidence as a black box, this structure is obscured.
-
-The Explanatory Accounts Framework addresses these issues by making the explanatory structure explicit—modeling not just *that* a hypothesis explains evidence, but *how* it does so through intermediate phenomena claims and auxiliary assumptions. This allows researchers to systematically develop explanatory accounts and attempt to eliminate them by showing that specific claims or inferential steps are implausible.
+The ExplanatoryGraph framework addresses these issues by making the explanatory structure explicit—modeling exactly *how* a hypothesis explains the body of evidence through intermediate phenomena claims and auxiliary assumptions. This allows researchers to systematically compare hypotheses based on their connections to the evidence base, even when evidence is indirect, diverse, and discordant.
 
 ## When to Use This Framework
 
@@ -32,14 +30,20 @@ The Explanatory Accounts Framework addresses these issues by making the explanat
 
 ## Core Concepts
 
-### The Building Blocks
+### Explanatory Accounts
 
-**Hypotheses** are the competing theories you want to evaluate. For example:
+Explaining a body of evidence usually requires more than a hypothesis alone. Consider the aerosol transmission hypothesis for COVID-19. To become widely accepted, it had to explain, among other things, (1) why several studies failed to detect viable SARS-CoV-2 from aerosols, (2) why SARS-CoV-2 has a lower basic reproduction number than most known airborne viruses such as measles, and (3) why surgical masks are somewhat effective in reducing transmission even though they are not designed to stop aerosols. To explain these facts, proponents of aerosol transmission had to appeal to a variety of methodological and empirical claims. For instance, to explain (1), they pointed out that common aerosol sampling techniques tend to damage viruses—so an inability to detect viable virus in aerosols would not actually rule out the hypothesis. Fully assessing empirical support for the aerosol hypothesis thus required assessing a **set** of explanations. An explanatory account is simply a set of explanations that a hypothesis uses to explain the evidence base.
+
+A single hypothesis can sometimes explain the evidence base in multiple ways. Different background assumptions or intermediate claims may be logically compatible with a hypothesis and help to explain the empirical results. In these cases, there are multiple explanatory accounts for a hypothesis. The ExplanatoryGraph framework allows for this and incorporates it into its Bayesian capabilities.
+
+### Node Types
+
+**Hypotheses** are the base claims of competing accounts you want to evaluate. For example:
 - H1: "COVID-19 transmits primarily via aerosols"
 - H2: "COVID-19 transmits primarily via large droplets"
 
-**Results** are the empirical observations (evidence corpus) that any adequate theory must explain:
-- "Study X found 18.7x higher transmission indoors vs outdoors"
+**Results** are the empirical observations (evidence corpus) that any adequate account must explain:
+- "Study X found 18.7x higher transmission risk indoors vs outdoors"
 - "Outbreak investigation at Restaurant Y found infections among diners with no direct contact"
 
 **Phenomena claims** are intermediate patterns or regularities that connect hypotheses to results:
@@ -52,16 +56,14 @@ The Explanatory Accounts Framework addresses these issues by making the explanat
 - "Virus remains viable in aerosols for >2 hours"
 - "Aerosol sampling techniques damage viral viability"
 
-**Accounts** are complete explanatory pathways connecting a hypothesis to results via phenomena claims and auxiliaries. One hypothesis may have multiple accounts, since there may be multiple sets of phenomena claims and auxiliaries through which a hypothesis can explain the results.
-
-*Note:* All nodes in the framework are propositional—they represent claims that are either true or false, each with a probability of being true or false—claims like "COVID-19 transmits primarily via aerosols" or "global temperature increase will exceed 2°C." This differs from Bayesian networks that model continuous random variables, where a node might represent temperature with a probability distribution over all possible temperature values. This framework uses propositional nodes because the goal is to evaluate the truth of explanatory accounts rather than estimate physical parameter values.
+*Note:* All nodes in the framework are propositional—they represent claims that are either true or false—claims like "COVID-19 transmits primarily via aerosols" or "global temperature increase will exceed 2°C." This differs from Bayesian networks that model continuous random variables, where a node might represent temperature with a probability distribution over possible temperature values. ExplanatoryGraph currently uses propositional nodes only. Future versions may incorporate nodes with continuous variables.
 
 ### The Explanatory Structure
 
 ```
 Hypothesis ──→ [EL] ──→ Phenomenon ──→ [EL] ──→ Result
-                              ↑
-                          Auxiliary
+                ↑
+            Auxiliary
 ```
 
 Each account specifies *how* its hypothesis explains a result. The strength of an account depends on the reliability of its explanatory links and the plausibility of its auxiliaries. An account with implausible auxiliaries or weak links will receive less support from the evidence.
@@ -70,7 +72,7 @@ Each account specifies *how* its hypothesis explains a result. The strength of a
 
 In a simple graph, you might represent "Phenomenon explains Result" as a directed edge. But real explanatory reasoning is more complex:
 
-1. **Auxiliaries attach to links**: An auxiliary assumption may be required for a specific inferential step—not for the nodes themselves. For example, "aerosol sampling techniques damage viral viability" is needed for the link connecting negative detection results to the aerosol hypothesis (see the [COVID-19 Case Study](covid_case_study_overview.md) for details). Making links nodes allows auxiliaries to target them directly.
+1. **Auxiliaries attach to links**: An auxiliary assumption may be required for a specific inferential step—not for the nodes themselves. For example, "aerosol sampling techniques damage viral viability" is needed for the link connecting negative detection results to the aerosol hypothesis (see the [COVID-19 Case Study](covid19_case_study_overview.md) for details). Making links nodes allows auxiliaries to target them directly.
 
 2. **Links have reliability**: Each explanatory connection has its own strength. Representing this reliability as a random variable—one that auxiliaries can influence—requires a node.
 
@@ -102,7 +104,7 @@ H1 (Theory A)                    H2 (Theory B)
 
 Both accounts can explain R1, but they do so through different mechanisms (PC1 vs PC2). The framework computes how much support each hypothesis receives from the evidence, based on the reliability of each explanatory pathway and the plausibility of any required auxiliaries.
 
-To explore this example, load "Simple Test" in the app and observe how the posterior probabilities shift when you condition on R1 being true.
+To explore this example, load "Simple Test" in the app and observe how the posterior probabilities shift when you condition on various nodes being set to true or false.
 
 ## How Bayesian Inference Fits In
 
@@ -111,32 +113,34 @@ The framework translates explanatory structure into a Bayesian network:
 1. **Hypothesis priors** reflect an initial credence in each hypothesis
 2. **Auxiliary priors** reflect an initial credence in each background assumption
 3. **Link parameters** capture the strength of explanatory connections:
-   - *Reliability*: How likely is the connection to hold when the source is true? A reliability of 0.9 means that when the source node is true, there's a 90% chance the explanatory connection succeeds. Lower reliability represents weaker or more uncertain explanatory relationships.
-   - *Epsilon*: A small baseline probability that allows results to occur even when unexplained. Without epsilon, a result would be impossible if no account explains it—but real-world results can occur for reasons outside the model. Epsilon is typically set very low (e.g., 0.01).
-4. **Evidence conditioning** treats observed results as TRUE by default—because results represent what you've observed, inference asks: given these observations, which hypothesis best explains them? You can override individual results to FALSE for counterfactual analysis ("what if we hadn't observed this?")
+   - *Reliability*: How likely is the connection to hold when the source and all required auxiliaries are true? A reliability of 0.9 means that when the source node and its auxiliaries are all true, there's a 90% chance the explanatory connection succeeds. Lower reliability represents weaker or more uncertain explanatory relationships.
+   - *Epsilon*: A small baseline probability that an explanatory link succeeds even when its conditions (source or auxiliaries) are not all met. Without epsilon, a link would be impossible whenever any condition fails. Epsilon is typically set very low (e.g., 0.01).
+4. **Target parameters** capture how strongly results and phenomena respond to explanatory links:
+   - *Strength*: How likely is the target to be true when its incoming explanatory link succeeds? A strength of 0.9 means a 90% chance the target is true when the link holds.
+   - *Base rate*: A small baseline probability that a result or phenomenon is true even when no explanatory link succeeds. This allows results to occur for reasons outside the model. Base rate is typically set very low (e.g., 0.01).
+5. **Evidence conditioning** treats observed results as TRUE by default. Because results represent what you've observed, inference asks: given these observations, what is the posterior probability for each hypothesis and other nodes? If you'd like, you can override the default behavior by setting result nodes to FALSE.
 
-When you run inference, the framework computes posterior probabilities for each hypothesis. Hypotheses with accounts that better explain the evidence—through more reliable links and more plausible auxiliaries—receive higher posterior probability.
+When you run inference, the framework computes posterior probabilities for each hypothesis and explanatory account. (If there is only one account per hypothesis, the hypothesis posterior will be identical to its account posterior.) Accounts that better explain the evidence corpus through more reliable links and more plausible auxiliaries will tend to receive higher posterior probability.
 
-## Key Analyses the Framework Provides
+## Further Analyses ExplanatoryGraph Provides
 
 ### Value of Information Analysis
-Which uncertain nodes would be most valuable to investigate? The framework computes Expected Value of Perfect Information (EVPI) for each node—measuring how much the posterior probability of hypotheses would change, on average, if you learned that node's true state. Nodes with high EVPI are high-priority research targets: resolving their uncertainty would most affect your conclusions. You can analyze auxiliaries, phenomena, or links.
+Which uncertain nodes would be most valuable to investigate? ExplanatoryGraph computes Expected Value of Perfect Information (EVPI) for each node—measuring how much the posterior probability of hypotheses would change, on average, if you learned that node's true state. Nodes with high EVPI are high-priority research targets: resolving their uncertainty would most affect your conclusions. You can analyze auxiliaries, phenomena, or links.
 
 ### Sensitivity Analysis
-How much do conclusions depend on specific parameter choices? The framework sweeps parameters (like auxiliary priors or link reliabilities) across a range and plots how posterior probabilities change. This reveals which assumptions are "load-bearing"—if small changes to a parameter dramatically shift conclusions, that assumption deserves scrutiny.
+How much do conclusions depend on specific parameter choices? The framework sweeps parameters (like auxiliary priors or link reliabilities) across a range and plots how posterior probabilities change. This helps reveal which modeling assumptions are "load-bearing"—if small changes to a parameter dramatically shift conclusions, that assumption deserves scrutiny.
 
-### Transparent Reasoning
-Every step from hypothesis to prediction is explicit. Unlike black-box statistical approaches, you can trace exactly why one hypothesis is favored: which links are strong, which auxiliaries are plausible, and where competing accounts diverge. This makes it easier to identify points of disagreement and communicate reasoning to others.
 
-## The Network Visualization
+## Network Visualization
 
-The app provides an interactive visualization of the explanatory network. Nodes are colored by different aspects depending on the selected mode:
+The app provides an interactive visualization of the explanatory graph. Nodes are colored by different features depending on the selected mode:
 
 - **Structure**: Node types (hypotheses, phenomena, results, auxiliaries, links)
-- **Prior**: Probabilities before conditioning on evidence
-- **Posterior**: Probabilities after conditioning on results
-- **Delta**: Change from prior to posterior (highlights nodes most affected by evidence)
+- **Baseline**: Probabilities after conditioning on all results as TRUE (the default evidence state)
+- **Posterior**: Probabilities given the current evidence configuration in the Analysis tab
+- **Delta**: Difference between two selected sets of marginals, useful for seeing how conditioning shifts probabilities
 - **Log-ratio**: Log odds ratio showing strength and direction of evidential impact
+- **Research Priority**: EVPI (Expected Value of Perfect Information) showing which nodes would most shift hypothesis posteriors if you learned their true state
 
 Click on nodes to see details, and use the layout controls to arrange the graph.
 
